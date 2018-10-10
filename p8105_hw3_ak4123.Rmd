@@ -21,10 +21,66 @@ brfss_data = brfss_smart2010 %>%
 
 ```{r question 1 questions}
 brfss_data %>%
-  filter (year == 2002) %>% 
-  group_by(locationdesc) %>%
+  filter(year == 2002) %>% 
+  distinct(locationdesc, locationabbr) %>%
   group_by(locationabbr) %>% 
-table()
+  count() %>% 
+  filter(n == 7)
 
-##need to display entire tibble to see all states
+##spaghetti plot
 
+#brfss_data %>%
+  ##need to create the proportion of excellent##
+ # filter (year == 2002 | year == 2006 | year == 2010) %>% 
+ # filter (locationabbr == "NY") %>% 
+ # group_by(locationdesc) 
+
+
+#panel plot
+
+```
+
+
+```{r question 2 cleaning}
+library(p8105.datasets)
+data("instacart")
+
+instacart = instacart %>% 
+janitor::clean_names()
+```
+The demensions of this dataset are (`r {dim(instacart)}`). This means there are 1384617 observations (rows) and 15 variables (columns). Some of the key variables include the order identification number, product name (along with an identification number), the department and aisle the product is located in. There is also...
+"order_id"               "product_id"            
+ [3] "add_to_cart_order"      "reordered"             
+ [5] "user_id"                "eval_set"              
+ [7] "order_number"           "order_dow"             
+ [9] "order_hour_of_day"      "days_since_prior_order"
+[11] "product_name"           "aisle_id"              
+[13] "department_id"          "aisle"                 
+[15] "department"        
+
+## give illustrative examples of observataions.
+```{r}
+
+##the aisles with the most orders
+instacart %>% 
+group_by(aisle) %>% 
+  count(order_id) %>% 
+arrange(desc(n)) %>% 
+  head(7)
+
+```
+There are `r {instacart %>% 
+  distinct(aisle) %>% 
+count()}` aisle. 
+
+THE MOST ORDERS
+aisle               order_id     n
+  <chr>                  <int> <int>
+1 baby food formula    2188545    28
+2 energy granola bars  1385776    28
+3 tea                  2445873    27
+4 yogurt               2606705    26
+5 cat food care        3363902    24
+6 energy granola bars  2397010    24
+7 baby food formula    2070470    23
+> 
