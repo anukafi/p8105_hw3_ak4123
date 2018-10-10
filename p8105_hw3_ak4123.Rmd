@@ -1,0 +1,27 @@
+---
+title: "p8105_hw3_ak4123"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r question 1 data cleaning }
+library(p8105.datasets)
+data("brfss_smart2010")
+
+brfss_data = brfss_smart2010 %>% 
+  janitor::clean_names() %>% 
+  filter(topic == "Overall Health") %>% 
+  filter(response == "Excellent"|response == "Very good"|response =="Good"|response =="Fair"|response == "Poor") %>% 
+  mutate(response = factor(response, levels = ordered("Excellent", "Very good", "Good", "Fair", "Poor")))
+```
+
+```{r question 1 questions}
+brfss_data %>%
+  filter (year == 2002) %>% 
+  group_by(locationdesc) %>%
+  group_by(locationabbr) %>% 
+  count(locationabbr)
