@@ -15,8 +15,8 @@ data("brfss_smart2010")
 brfss_data = brfss_smart2010 %>% 
   janitor::clean_names() %>% 
   filter(topic == "Overall Health") %>% 
-  filter(response == "Excellent"|response == "Very good"|response =="Good"|response =="Fair"|response == "Poor") %>% 
-  mutate(response = factor(response, levels = ordered("Excellent", "Very good", "Good", "Fair", "Poor")))
+  filter(response == "Excellent" | response == "Very good" | response == "Good" | response == "Fair" | response == "Poor") %>% 
+  mutate(response = factor(response, levels = ordered(c("Excellent", "Very good", "Good", "Fair", "Poor"))))
 ```
 
 ```{r question 1 questions}
@@ -29,11 +29,15 @@ brfss_data %>%
 
 ##spaghetti plot
 
-#brfss_data %>%
-  ##need to create the proportion of excellent##
- # filter (year == 2002 | year == 2006 | year == 2010) %>% 
- # filter (locationabbr == "NY") %>% 
- # group_by(locationdesc) 
+brfss_data %>%
+  spread(key = response, value = data_value) %>%
+  janitor::clean_names() %>% 
+  select(year, excellent, locationabbr) %>% 
+  filter(!is.na(excellent) & locationabbr == "NY" & (year == "2002" | year == "2006" | year == "2010")) %>%
+  group_by(year) %>% 
+  summarize(mean_proportion_excellent = mean(excellent), sd_proportion_excellent = sd(excellent)) %>% 
+  knitr::kable()
+
 
 
 #panel plot
@@ -87,15 +91,39 @@ aisle               order_id     n
 ```{r question 2 plots}
 ##plot: number of items ordered in each aisle ... so y is number of items, x is aisle # 
 
+instacart %>% 
+  group_by(aisle) %>% 
+  summarize(amount_ordered = n()) %>% 
+  ggplot(aes(x = aisle, y = amount_ordered)) + 
+  geom_point() +
+  labs(
+     title = "Items ordered in each aisle",
+     x = "aisle number",
+     y = "number of items ordered"
+    )
+
 ## table: most popular items
+
+instacart %>% 
+  filter(aisle == "baking ingredients" | aisle == 
+           "dog food care" | aisle == "packaged vegetables fruits")
+group_by(aisle) %>% 
+  summarize(most_ordered = n())
 
 ## table: mean hour of day 
 ```
 
-```{r question 3 data cleaning}
+```{r question 3 data import}
 library(p8105.datasets)
-data("ny_noaa") %>%
-janitor::clean_names()
+data("ny_noaa") 
 ```
 The dimensions of this dataset are (`r {dim(ny_noaa)}`). This means there are 2595176 observations (rows) and 7 variables (columns). Some of the key variables include "id"   "date" "prcp" "snow" "snwd" "tmax" "tmin"
 MISSING DATA IS AN ISSUE BC ...
+
+```{r question 3 data cleaning}
+ny_noaa %>%
+janitor::clean_names()
+```
+#mutate(year = as.numeric(format(datetxt, format = "%Y")) %>% 
+#mutate(month = as.numeric(format(datetxt, format = "%m")) %>% 
+#mutate(day = as.numeric(format(datetxt, format = "%d")))
