@@ -73,7 +73,7 @@ brfss_data %>%
     viridis::scale_color_viridis(
       name = "State",
       discrete = TRUE
-    )+
+    ) +
     guides(color = guide_legend(nrow = 6))
 
 
@@ -181,4 +181,24 @@ ny_noaa %>%
   head(7)
 
 
+ny_noaa %>% 
+  filter(month == "01" | month == "07")
+mutate(month = month.name[as.integer(month)]) %>% 
+  mutate(avg_maxtemp = mean(tmax))
+  group_by(month, year, id) %>% 
+  ggplot(aes(x = year, y = avg_maxtemp, color = id)) +
+    geom_point(alpha = 0.5) +
+    scale_x_continuous(breaks = c(1980, 1990, 2000, 2010)) +
+  facet_grid(~month) +
+    labs(
+      title = "TITLE",
+      x = "Year", 
+      y = "Average Max Temperature",
+      caption = "NY_NOAA Data"
+    ) +
+    viridis::scale_color_viridis(
+      name = "ID",
+      discrete = TRUE
+    ) +
+    guides(color = guide_legend(nrow = 6))
 ```
