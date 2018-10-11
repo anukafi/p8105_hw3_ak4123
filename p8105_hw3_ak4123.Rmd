@@ -16,7 +16,7 @@ brfss_data = brfss_smart2010 %>%
   janitor::clean_names() %>% 
   filter(topic == "Overall Health") %>% 
   filter(response == "Excellent" | response == "Very good" | response == "Good" | response == "Fair" | response == "Poor") %>% 
-  mutate(response = factor(response, levels = ordered(c("Excellent", "Very good", "Good", "Fair", "Poor"))))
+  mutate(response = ordered(response, levels = c("Excellent", "Very good", "Good", "Fair", "Poor")))
 ```
 
 ```{r question 1 questions}
@@ -27,7 +27,24 @@ brfss_data %>%
   count() %>% 
   filter(n == 7)
 
-##spaghetti plot
+brfss_data %>% 
+  filter(year >= 2002 & year <= 2010) %>% 
+  group_by(locationabbr, year) %>%  
+  distinct(locationdesc) %>% 
+  summarize(location_count = n()) %>%
+  ggplot(aes(x = year, y = location_count, color = locationabbr)) +
+    geom_line(size = 0.1) +
+    labs(
+      title = "Observation Plot",
+      x = "Year",
+      y = "Number of Observations",
+      caption = "BRFSS Data"
+    ) +
+    viridis::scale_color_viridis(
+      name = "State",
+      discrete = TRUE
+    ) + 
+  guides(color = guide_legend(nrow = 6))
 
 brfss_data %>%
   spread(key = response, value = data_value) %>%
@@ -40,7 +57,6 @@ brfss_data %>%
 
 
 
-#panel plot
 
 ```
 
