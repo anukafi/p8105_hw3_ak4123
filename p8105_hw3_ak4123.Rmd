@@ -172,3 +172,13 @@ janitor::clean_names() %>%
 separate(date, into = c("year", "month", "day"), sep = "-") %>% 
   mutate(precipitation = prcp / 10, tmax = as.integer(tmax) / 10, tmin = as.integer(tmin) / 10)
 ```
+
+```{r questions}
+ny_noaa %>% 
+  group_by(snow) %>% 
+  summarize(freq = n()) %>% 
+  arrange(desc(freq)) %>% 
+  head(7)
+
+
+```
