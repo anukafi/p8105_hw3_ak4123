@@ -54,8 +54,27 @@ brfss_data %>%
   group_by(year) %>% 
   summarize(mean_proportion_excellent = mean(excellent), sd_proportion_excellent = sd(excellent)) %>% 
   knitr::kable()
+##need to edit this because I do not think the proportion is right
 
-
+brfss_data %>% 
+  mutate(proportion = data_value / 100) %>% 
+  group_by(year, locationabbr, response) %>% 
+  summarize(mean_proportion = mean(proportion)) %>% 
+  ggplot(aes(x = year, y = mean_proportion, color = locationabbr)) +
+    geom_point(alpha = 0.5) +
+    scale_x_continuous(breaks = c(2003, 2006, 2009)) +
+    facet_grid(~response) +
+    labs(
+      title = "Response to Overall Health Question: Broken Down By State for the years 2002 to 2010",
+      x = "Year", 
+      y = "Mean Proportion",
+      caption = "BRFSS Data"
+    ) +
+    viridis::scale_color_viridis(
+      name = "State",
+      discrete = TRUE
+    )+
+    guides(color = guide_legend(nrow = 6))
 
 
 ```
