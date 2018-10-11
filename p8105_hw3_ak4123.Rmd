@@ -113,21 +113,28 @@ group_by(aisle) %>%
   rename(top_product_name = product_name) %>% 
   arrange(aisle) %>% 
   knitr::kable()
+
+
+instacart %>% 
+  filter(product_name == "Pink Lady Apples" | product_name ==  "Coffee Ice Cream") %>% 
+select(order_hour_of_day, order_dow, product_name) %>% 
+group_by(product_name, order_dow) %>% 
+summarize(mean_hour = mean(order_hour_of_day)) %>% 
+spread(key = order_dow, value = mean_hour)
 ```
 
-```
-## table: mean hour of day 
-{r question 3 data import}
+```{r question 3 data import}
 library(p8105.datasets)
 data("ny_noaa") 
+```
 
 The dimensions of this dataset are (`r {dim(ny_noaa)}`). This means there are 2595176 observations (rows) and 7 variables (columns). Some of the key variables include "id"   "date" "prcp" "snow" "snwd" "tmax" "tmin"
 MISSING DATA IS AN ISSUE BC ...
 
-{r question 3 data cleaning}
+```{r question 3 data cleaning}
 ny_noaa %>%
 janitor::clean_names()
-
+```
 #mutate(year = as.numeric(format(datetxt, format = "%Y")) %>% 
 #mutate(month = as.numeric(format(datetxt, format = "%m")) %>% 
 #mutate(day = as.numeric(format(datetxt, format = "%d")))
