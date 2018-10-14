@@ -7,7 +7,8 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
-
+####Problem 1
+#####Data Cleaning: In this code chunk, I clean the data and focus on the "Overall Health Topic". Also, I include only responses from “Excellent” to “Poor”; also, I organize responses as a factor taking levels ordered from “Excellent” to “Poor”.
 ```{r question 1 data cleaning }
 library(p8105.datasets)
 data("brfss_smart2010")
@@ -17,7 +18,7 @@ brfss_data = brfss_smart2010 %>%
   filter(topic == "Overall Health") %>% 
   filter(response == "Excellent" | response == "Very good" | response == "Good" | response == "Fair" | response == "Poor") %>% mutate(response = ordered(response, levels = c("Excellent", "Very good", "Good", "Fair", "Poor")))
 ```
-
+##### Part A:
 ```{r question 1 questions}
 brfss_data %>%
   filter(year == 2002) %>% 
@@ -25,7 +26,10 @@ brfss_data %>%
   group_by(locationabbr) %>% 
   count() %>% 
   filter(n == 7)
-
+```
+The states with that were observed at 7 locations in 2002 are: CT, FL, and NC. 
+###### Part B: Here, I make a “spaghetti plot” that shows the number of locations in each state from 2002 to 2010.
+```{R}
 brfss_data %>% 
   filter(year >= 2002 & year <= 2010) %>% 
   group_by(locationabbr, year) %>%  
@@ -44,7 +48,9 @@ brfss_data %>%
       discrete = TRUE
     ) + 
   guides(color = guide_legend(nrow = 6))
-
+```
+###### Part C: Here, I make a table showing, for the years 2002, 2006, and 2010, the mean and standard deviation of the proportion of “Excellent” responses across locations in NY State.
+```{R}
 brfss_data %>%
   spread(key = response, value = data_value) %>%
   janitor::clean_names() %>% 
@@ -53,7 +59,9 @@ brfss_data %>%
   group_by(year) %>% 
   summarize(mean_proportion_excellent = mean(excellent), sd_proportion_excellent = sd(excellent)) %>% 
   knitr::kable()
-
+```
+#####Part D: For each year and state, I compute the average proportion in each response category (taking the average across locations in a state). Then, I make a five-panel plot that shows, for each response category separately, the distribution of these state-level averages over time.
+```{R}
 brfss_data %>% 
   mutate(proportion = data_value / 100) %>% 
   group_by(year, locationabbr, response) %>% 
@@ -76,8 +84,8 @@ brfss_data %>%
 
 
 ```
-
-
+####Question 2
+#####Data Cleaning of the instacart dataset. 
 ```{r question 2 cleaning}
 library(p8105.datasets)
 data("instacart")
@@ -87,42 +95,29 @@ janitor::clean_names()
 ```
 The dimensions of this dataset are (`r {dim(instacart)}`). This means there are 1384617 observations (rows) and 15 variables (columns). Some of the key variables include the order identification number, product name (along with an identification number), the department and aisle the product is located in. There is also...
 "order_id"               "product_id"            
- [3] "add_to_cart_order"      "reordered"             
- [5] "user_id"                "eval_set"              
- [7] "order_number"           "order_dow"             
- [9] "order_hour_of_day"      "days_since_prior_order"
-[11] "product_name"           "aisle_id"              
-[13] "department_id"          "aisle"                 
-[15] "department"        
+"add_to_cart_order"      "reordered"             
+"user_id"                "eval_set"              
+"order_number"           "order_dow"             
+"order_hour_of_day"      "days_since_prior_order"
+"product_name"           "aisle_id"              
+"department_id"          "aisle"                 
+"department"        
+***give illustrative examples of observataions.
 
-## give illustrative examples of observataions.
+#####Part A
 ```{r}
-
-##the aisles with the most orders
 instacart %>% 
 group_by(aisle) %>% 
   count(order_id) %>% 
 arrange(desc(n)) %>% 
-  head(7)
-
+  head(2)
 ```
 There are `r {instacart %>% 
   distinct(aisle) %>% 
-count()}` aisle. 
-
-###THE MOST ORDERS NEED TO FIX THIS 
-aisle               order_id     n
-  <chr>                  <int> <int>
-1 baby food formula    2188545    28
-2 energy granola bars  1385776    28
-3 tea                  2445873    27
-4 yogurt               2606705    26
-5 cat food care        3363902    24
-6 energy granola bars  2397010    24
-7 baby food formula    2070470    23
-
+count()}` aisles.
+The aisles with the most orders are baby food formula and energy granola bars, each with 28 orders. 
+#####Part B: Here, I make a plot that shows the number of items ordered in each aisle.
 ```{r question 2 plots}
-
 instacart %>% 
   group_by(aisle) %>% 
   summarize(amount_ordered = n()) %>% 
@@ -133,7 +128,9 @@ instacart %>%
      x = "aisle number",
      y = "number of items ordered"
     )
-
+```
+#####Part C: I make a table showing the most popular item in each of the aisles: “baking ingredients”, “dog food care”, and “packaged vegetables fruits”.
+```{R}
 instacart %>% 
   filter(aisle == "baking ingredients" | aisle == 
            "dog food care" | aisle == "packaged vegetables fruits") %>% 
@@ -146,8 +143,10 @@ group_by(aisle) %>%
   rename(top_product_name = product_name) %>% 
   arrange(aisle) %>% 
   knitr::kable()
+```
 
-
+#####Part D: I make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week.
+```{r}
 instacart %>% 
   filter(product_name == "Pink Lady Apples" | product_name ==  "Coffee Ice Cream") %>% 
 select(order_hour_of_day, order_dow, product_name) %>% 
@@ -155,30 +154,30 @@ group_by(product_name, order_dow) %>%
 summarize(mean_hour = mean(order_hour_of_day)) %>% 
 spread(key = order_dow, value = mean_hour)
 ```
-
+####Question 3
+#####I load the data from NY_NOAA
 ```{r question 3 data import}
 library(p8105.datasets)
 data("ny_noaa") 
 ```
-
 The dimensions of this dataset are (`r {dim(ny_noaa)}`). This means there are 2595176 observations (rows) and 7 variables (columns). Some of the key variables include "id"   "date" "prcp" "snow" "snwd" "tmax" "tmin"
 MISSING DATA IS AN ISSUE BC ...
-
+#####I clean the data from NY_NOAA and create separate variables for year, month, and day.
 ```{r question 3 data cleaning}
 c_ny_noaa = ny_noaa %>% 
   janitor::clean_names() %>% 
   separate(date, into = c("year", "month", "day"), sep = "-") %>% 
   mutate(prcp = prcp / 10, tmax = as.integer(tmax) / 10, tmin = as.integer(tmin) / 10)
-```
 
-```{r questions}
 c_ny_noaa %>% 
   group_by(snow) %>% 
   summarize(freq = n()) %>% 
   arrange(desc(freq)) %>% 
-  select(snow)
-  head(7)
-
+  head(3)
+```
+For snowfall, the most common values are actually 0 inches and N/A. Following this, the most common snowfall is 25 inches. 
+#####Part A: I make a two-panel plot showing the average max temperature in January and in July in each station across years.
+```{r questions}
 c_ny_noaa %>% 
   filter(tmax != "NA" & (month == "01" | month == "07")) %>% 
   mutate(month = month.name[as.integer(month)]) %>%
@@ -202,7 +201,8 @@ c_ny_noaa %>%
     theme(legend.position = "bottom", legend.text = element_text(size = 4), legend.key.size = unit(1, "point")) +
     guides(color = guide_legend(nrow = 22))
 ```
-
+About the plot: We see that the average maximum temperature across all locations is lower in January than it is in July, which is expected. We can also see that there is greater variation in in January than in July across most locations, as the range is wider. We are able to see outliers, though due to the number of locations I cannot distiguish exactly which locations. There appears to be more outliers in the later years for both months. For the most part, it appears that the overall temperature range has stayed he same, with yearly variation across both months. We could say that there is more variation in January than in July. 
+#####Part B: I Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 ```{R last plot}
 library(hexbin)
 precipitation_plot = c_ny_noaa %>% 
