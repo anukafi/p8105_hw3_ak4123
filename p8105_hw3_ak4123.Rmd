@@ -47,6 +47,8 @@ brfss_data %>%
       name = "State",
       discrete = TRUE
     ) + 
+  theme_bw() +
+    theme(legend.position = "bottom") +
   guides(color = guide_legend(nrow = 6))
 ```
 ###### Part C: Here, I make a table showing, for the years 2002, 2006, and 2010, the mean and standard deviation of the proportion of “Excellent” responses across locations in NY State.
@@ -71,18 +73,11 @@ brfss_data %>%
     scale_x_continuous(breaks = c(2003, 2006, 2009)) +
     facet_grid(~response) +
     labs(
-      title = "Response to Overall Health Question: Broken Down By State for the years 2002 to 2010",
+      title = "Response to Overall Health Question: Broken Down By State from 2002 to 2010",
       x = "Year", 
       y = "Mean Proportion",
       caption = "BRFSS Data"
-    ) +
-    viridis::scale_color_viridis(
-      name = "State",
-      discrete = TRUE
-    ) +
-    guides(color = guide_legend(nrow = 6))
-
-
+    )
 ```
 ####Question 2
 #####Data Cleaning of the instacart dataset. 
@@ -93,7 +88,7 @@ data("instacart")
 instacart = instacart %>% 
 janitor::clean_names()
 ```
-The dimensions of this dataset are (`r {dim(instacart)}`). This means there are 1384617 observations (rows) and 15 variables (columns). Some of the key variables include the order identification number, product name (along with an identification number), the department and aisle the product is located in. There is also...
+The dimensions of this dataset are (`r {dim(instacart)}`). This means there are 1384617 observations (rows) and 15 variables (columns). Some of the key variables include the user identification number, product name (along with an identification number), the department and aisle the product is located in. There is also:
 "order_id"               "product_id"            
 "add_to_cart_order"      "reordered"             
 "user_id"                "eval_set"              
@@ -101,8 +96,9 @@ The dimensions of this dataset are (`r {dim(instacart)}`). This means there are 
 "order_hour_of_day"      "days_since_prior_order"
 "product_name"           "aisle_id"              
 "department_id"          "aisle"                 
-"department"        
-***give illustrative examples of observataions.
+"department"   
+
+An example of an observation would be for the user id `r {instacart %>% select(user_id) %>% head(1)}`, a product they ordered was `r {instacart %>% select(product_name) %>% head(1)}`. This product comes from the `r {instacart %>% select(department) %>% head(1)}`.
 
 #####Part A
 ```{r}
@@ -110,7 +106,8 @@ instacart %>%
 group_by(aisle) %>% 
   count(order_id) %>% 
 arrange(desc(n)) %>% 
-  head(2)
+  head(7) %>% 
+  knitr::kable()
 ```
 There are `r {instacart %>% 
   distinct(aisle) %>% 
@@ -127,7 +124,7 @@ instacart %>%
      title = "Items ordered in each aisle",
      x = "aisle number",
      y = "number of items ordered"
-    )
+    ) + theme_bw()
 ```
 #####Part C: I make a table showing the most popular item in each of the aisles: “baking ingredients”, “dog food care”, and “packaged vegetables fruits”.
 ```{R}
@@ -148,11 +145,12 @@ group_by(aisle) %>%
 #####Part D: I make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week.
 ```{r}
 instacart %>% 
-  filter(product_name == "Pink Lady Apples" | product_name ==  "Coffee Ice Cream") %>% 
-select(order_hour_of_day, order_dow, product_name) %>% 
-group_by(product_name, order_dow) %>% 
-summarize(mean_hour = mean(order_hour_of_day)) %>% 
-spread(key = order_dow, value = mean_hour)
+  filter(product_name == "Pink Lady Apples" | product_name == "Coffee Ice Cream") %>% 
+  select(product_name, order_dow, order_hour_of_day) %>% 
+  group_by(order_dow, product_name) %>% 
+  summarize(mean_hour = mean(order_hour_of_day)) %>% 
+  spread(key = order_dow, value = mean_hour) %>% 
+  knitr::kable()
 ```
 ####Question 3
 #####I load the data from NY_NOAA
@@ -175,7 +173,7 @@ c_ny_noaa %>%
   arrange(desc(freq)) %>% 
   head(3)
 ```
-For snowfall, the most common values are actually 0 inches and N/A. Following this, the most common snowfall is 25 inches. 
+For snowfall, the most common values are actually 0 inches and N/A, which makes sense because snow does not occur year-long. Following this, the most common snowfall is 25 inches. 
 #####Part A: I make a two-panel plot showing the average max temperature in January and in July in each station across years.
 ```{r questions}
 c_ny_noaa %>% 
@@ -189,30 +187,30 @@ c_ny_noaa %>%
   facet_grid(~month) +  
   labs(
       x = "Year",
-      y = "Average Temp. (°C)",
-      title = "Average Max Temperatures for January and July in New York",
-      caption = "Data from NOAA"
+      y = "Average Temperature (°C)",
+      title = "Average Maximum Temperatures for January and July in New York",
+      caption = "NY_NOAA Data"
     ) +
     viridis::scale_color_viridis(
       discrete = TRUE,
       name = "ID"
     ) +
     theme_bw() +
-    theme(legend.position = "bottom", legend.text = element_text(size = 4), legend.key.size = unit(1, "point")) +
+    theme(legend.position = "bottom", legend.text = element_text(size = 3), legend.key.size = unit(1, "point")) +
     guides(color = guide_legend(nrow = 22))
 ```
 About the plot: We see that the average maximum temperature across all locations is lower in January than it is in July, which is expected. We can also see that there is greater variation in in January than in July across most locations, as the range is wider. We are able to see outliers, though due to the number of locations I cannot distiguish exactly which locations. There appears to be more outliers in the later years for both months. For the most part, it appears that the overall temperature range has stayed he same, with yearly variation across both months. We could say that there is more variation in January than in July. 
-#####Part B: I Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+#####Part B: I Make a two-panel plot showing (i) tmax vs tmin for the full dataset ; and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 ```{R last plot}
 library(hexbin)
-precipitation_plot = c_ny_noaa %>% 
+temp_plot = c_ny_noaa %>% 
   filter(tmax != "NA" & tmin != "NA") %>% 
   ggplot(aes(x = tmax, y = tmin)) + 
     stat_binhex() + 
   labs(
-      x = "max temperature (°C)",
-      y = "min temperature (°C)",
-      title = "Maximum and minimum temperatures for full dataset",
+      x = "maximum temperature (°C)",
+      y = "minimum temperature (°C)",
+      title = "Maximum and minimum temperatures",
       caption = "Data from NOAA"
     )
 
@@ -223,10 +221,10 @@ snowfall_plot = c_ny_noaa %>%
     labs(
       x = "year",
       y = "snowfall amount (mm)",
-      title = "distribution of snowfall by year",
+      title = "Yearly distribution of snowfall",
       caption = "NOAA data"
     )
 
-ggpubr::ggarrange(precipitation_plot, snowfall_plot, 
+ggpubr::ggarrange(temp_plot, snowfall_plot,
   ncol = 1, nrow = 2)
 ```
