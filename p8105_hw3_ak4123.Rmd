@@ -61,8 +61,9 @@ brfss_data %>%
   janitor::clean_names() %>% 
   select(year, excellent, locationabbr) %>% 
   filter(!is.na(excellent) & locationabbr == "NY" & (year == "2002" | year == "2006" | year == "2010")) %>%
+  mutate(prop_excellent = excellent / 100) %>% 
   group_by(year) %>% 
-  summarize(mean_proportion_excellent = mean(excellent), sd_proportion_excellent = sd(excellent)) %>% 
+  summarize(mean_proportion_excellent = mean(prop_excellent), sd_proportion_excellent = sd(prop_excellent)) %>% 
   knitr::kable()
 ```
 From this table, we can see that the mean decreases from 2002 to 2006, and remains the same to 2010. The standard deviations remain roughly the same. 
@@ -70,9 +71,9 @@ From this table, we can see that the mean decreases from 2002 to 2006, and remai
 ##Part D: For each year and state, I compute the average proportion in each response category (taking the average across locations in a state). Then, I make a five-panel plot that shows, for each response category separately, the distribution of these state-level averages over time.
 ```{R}
 brfss_data %>% 
-  mutate(proportion = data_value / 100) %>% 
+  mutate(prop_excellent = data_value / 100) %>% 
   group_by(year, locationabbr, response) %>% 
-  summarize(mean_proportion = mean(proportion)) %>% 
+  summarize(mean_proportion = mean(prop_excellent)) %>% 
   ggplot(aes(x = year, y = mean_proportion, fill = locationabbr)) +
     geom_boxplot(aes(group = cut_width(year,1))) +
     scale_x_continuous(breaks = c(2003, 2006, 2009)) +
@@ -95,6 +96,25 @@ data("instacart")
 instacart = instacart %>% 
 janitor::clean_names()
 ```
+
+```{r inline codes 1}
+
+dim(instacart)
+
+instacart %>% 
+  select(user_id) %>% 
+  head(1)
+
+instacart %>% 
+  select(product_name) %>% 
+  head(1)
+
+instacart %>% 
+  select(department) %>% 
+  head(1)
+```
+
+
 The dimensions of this dataset are (`r {dim(instacart)}`). This means there are 1384617 observations (rows) and 15 variables (columns). Some of the key variables include the user identification number, product name (along with an identification number), the department and aisle the product is located in. There is also:
 "order_id"               "product_id"            
 "add_to_cart_order"      "reordered"             
@@ -115,6 +135,12 @@ group_by(aisle) %>%
 arrange(desc(n)) %>% 
   head(2) %>% 
   knitr::kable()
+```
+
+```{r inline codes 2}
+instacart %>% 
+  distinct(aisle) %>% 
+count()
 ```
 
 There are `r {instacart %>% 
@@ -175,6 +201,18 @@ The times at which Pink Lady Apples and Coffee Ice Cream are ordered can be comp
 ```{r question 3 data import}
 library(p8105.datasets)
 data("ny_noaa") 
+```
+
+```{r inline codes 3}
+dim(ny_noaa)
+
+ny_noaa %>% 
+  select(id) %>% 
+  head(1)
+
+ny_noaa %>% 
+  filter(is.na(tmax) | is.na(tmin) | is.na(prcp) | is.na(snow) | is.na(snwd)) %>% 
+  nrow()
 ```
 The dimensions of this dataset are (`r {dim(ny_noaa)}`). This means there are 2595176 observations (rows) and 7 variables (columns).  The information in this table is information about precipitation, temperature, and snow in New York, obtained from weather stations. Each observation is a specific weather station, on a specific date. The variables included are: "id"   "date" "prcp" "snow" "snwd" "tmax" "tmin". The id is a idnetificatoin number given to each of the weather stations (there are 5 in total). For example, `r {ny_noaa %>% select(id) %>% head(1)}` is an ID. Then there is thee date the observation is referring to, it has the day, month and year. The prcp variable is the amount of precipitation in tenths of a millimeter, while tmax and tmin are the maximum and minimum temperatures in tenths of a degree (Celsius). There is also measurements of snow, which it is important to note does not occur year-round. 
 
